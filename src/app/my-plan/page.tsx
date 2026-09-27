@@ -1,13 +1,26 @@
+"use client";
 import Link from "next/link";
+import { usePlan } from "@/context/PlanContext";
+import { useState } from "react";
 
 const TodayPlanPage = () => {
-  // TODO: replace with real state (context/localStorage) once wired up
-  const planItems: unknown[] = [];
+  const { planItems, savedItems } = usePlan();
+  const [activeTab, setActiveTab] = useState<"plan" | "saved">("plan");
+
+  const activeList = activeTab === "plan" ? planItems : savedItems;
 
   const stats = [
-    { label: "Exercises", value: 0, highlight: true },
-    { label: "Minutes", value: 0, highlight: false },
-    { label: "Calories", value: 0, highlight: false },
+    { label: "Exercises", value: planItems.length, highlight: true },
+    {
+      label: "Minutes",
+      value: planItems.reduce((sum, item) => sum + item.duration, 0),
+      highlight: false,
+    },
+    {
+      label: "Calories",
+      value: planItems.reduce((sum, item) => sum + item.caloriesBurned, 0),
+      highlight: false,
+    },
   ];
 
   return (
@@ -34,16 +47,32 @@ const TodayPlanPage = () => {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-8">
         <div className="inline-flex bg-base-200 rounded-full p-1 w-fit">
-          <button className="px-4 py-2 rounded-full text-sm text-gray-400">
+          <button
+            onClick={() => setActiveTab("plan")}
+            className={`px-4 py-2 rounded-full text-sm ${
+              activeTab === "plan"
+                ? "bg-base-300 text-lime-400 font-semibold"
+                : "text-gray-400"
+            }`}
+          >
             Today&apos;s Plan
           </button>
-          <button className="px-4 py-2 rounded-full text-sm bg-base-300 text-lime-400 font-semibold">
+          <button
+            onClick={() => setActiveTab("saved")}
+            className={`px-4 py-2 rounded-full text-sm ${
+              activeTab === "saved"
+                ? "bg-base-300 text-lime-400 font-semibold"
+                : "text-gray-400"
+            }`}
+          >
             Saved
           </button>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-300 whitespace-nowrap">Sort By</span>
+          <span className="text-sm text-gray-300 whitespace-nowrap">
+            Sort By
+          </span>
           <select className="select select-bordered bg-base-100 rounded-full">
             <option>Duration</option>
             <option>Calories</option>
@@ -53,9 +82,11 @@ const TodayPlanPage = () => {
       </div>
 
       <div className="bg-base-200 rounded-2xl mt-6 py-20 px-6 text-center">
-        {planItems.length === 0 ? (
+        {activeList.length === 0 ? (
           <>
-            <h2 className="text-lg font-bold tracking-wide">NOTHING HERE YET</h2>
+            <h2 className="text-lg font-bold tracking-wide">
+              NOTHING HERE YET
+            </h2>
             <p className="text-gray-400 mt-3">
               Browse the library and add a lift to get today moving.
             </p>
@@ -66,7 +97,7 @@ const TodayPlanPage = () => {
             </Link>
           </>
         ) : (
-          <div className="text-left">{/* map planItems into rows here */}</div>
+          <div className="text-left"></div>
         )}
       </div>
     </div>

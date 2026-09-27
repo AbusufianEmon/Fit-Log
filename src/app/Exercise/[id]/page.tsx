@@ -2,6 +2,7 @@ import { IGymItem } from "@/Types/GymTypes";
 import { Bookmark, CalendarPlus } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import ExerciseActions from "@/components/shared/ExerciseActions";
 
 interface IExerciseProps {
   params: Promise<{
@@ -121,16 +122,7 @@ const IdPage = async ({ params }: IExerciseProps) => {
             </ol>
           </div>
 
-          <div className="flex flex-col sm:flex-row mt-5 gap-3">
-            <button className="flex items-center justify-center gap-2 rounded-2xl bg-lime-400 text-gray-900 px-6 py-3">
-                <CalendarPlus className="w-5 h-5"/>
-                Add to today&apos;s plan
-            </button>
-            <button className="flex items-center justify-center gap-2 border rounded-2xl border-white px-5 py-3">
-                <Bookmark className="w-5 h-5" />
-                Save for later
-            </button>
-          </div>
+          <ExerciseActions exercise={exerciseData} />
         </div>
       </div>
     </div>
