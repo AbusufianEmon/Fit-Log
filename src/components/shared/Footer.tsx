@@ -11,7 +11,7 @@ const Footer = () => {
         </div>
 
         <div className="flex items-start gap-2 text-base-content/60">
-          <Copyright className="w-4 h-4 shrink-0" />
+          <Copyright className="w-4 h-4 shrink-0 sm:mt-1" />
           <p className="text-sm sm:text-base">
             2026 FitLog — Workout Library. Train hard, log honest.
           </p>

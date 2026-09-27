@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { IGymItem } from "@/Types/GymTypes";
 
 interface PlanContextType {
@@ -17,9 +23,32 @@ const PlanContext = createContext<PlanContextType | undefined>(undefined);
 
 const PLAN_CAP = 5;
 
+const getStoredItems = (key: string): IGymItem[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? (JSON.parse(stored) as IGymItem[]) : [];
+  } catch (error) {
+    console.error(`Failed to load ${key}:`, error);
+    return [];
+  }
+};
+
 export const PlanProvider = ({ children }: { children: ReactNode }) => {
-  const [planItems, setPlanItems] = useState<IGymItem[]>([]);
-  const [savedItems, setSavedItems] = useState<IGymItem[]>([]);
+  const [planItems, setPlanItems] = useState<IGymItem[]>(() =>
+    getStoredItems("planItems"),
+  );
+  const [savedItems, setSavedItems] = useState<IGymItem[]>(() =>
+    getStoredItems("savedItems"),
+  );
+
+  useEffect(() => {
+    localStorage.setItem("planItems", JSON.stringify(planItems));
+  }, [planItems]);
+
+  useEffect(() => {
+    localStorage.setItem("savedItems", JSON.stringify(savedItems));
+  }, [savedItems]);
 
   const addToPlan = (item: IGymItem) => {
     if (planItems.length >= PLAN_CAP) return false;
@@ -42,7 +71,6 @@ export const PlanProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const markAsDone = (id: number) => {
-    // simplest version: treat "done" as removed from the active plan
     removeFromPlan(id);
   };
 
