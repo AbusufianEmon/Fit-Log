@@ -2,23 +2,25 @@
 import Link from "next/link";
 import { usePlan } from "@/context/PlanContext";
 import { useState } from "react";
+import PlanListItem from "@/components/shared/PlanListItem";
 
 const TodayPlanPage = () => {
-  const { planItems, savedItems } = usePlan();
+  const { planItems, savedItems, removeFromPlan, removeFromSaved, markAsDone } =
+    usePlan();
   const [activeTab, setActiveTab] = useState<"plan" | "saved">("plan");
 
   const activeList = activeTab === "plan" ? planItems : savedItems;
 
   const stats = [
-    { label: "Exercises", value: planItems.length, highlight: true },
+    { label: "Exercises", value: activeList.length, highlight: true },
     {
       label: "Minutes",
-      value: planItems.reduce((sum, item) => sum + item.duration, 0),
+      value: activeList.reduce((sum, item) => sum + item.duration, 0),
       highlight: false,
     },
     {
       label: "Calories",
-      value: planItems.reduce((sum, item) => sum + item.caloriesBurned, 0),
+      value: activeList.reduce((sum, item) => sum + item.caloriesBurned, 0),
       highlight: false,
     },
   ];
@@ -97,7 +99,19 @@ const TodayPlanPage = () => {
             </Link>
           </>
         ) : (
-          <div className="text-left"></div>
+          <div className="text-left space-y-3">
+            {activeList.map((item) => (
+              <PlanListItem
+                key={item.id}
+                item={item}
+                showMarkDone={activeTab === "plan"}
+                onMarkDone={markAsDone}
+                onRemove={
+                  activeTab === "plan" ? removeFromPlan : removeFromSaved
+                }
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

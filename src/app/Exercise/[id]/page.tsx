@@ -1,8 +1,8 @@
 import { IGymItem } from "@/Types/GymTypes";
-import { Bookmark, CalendarPlus } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import ExerciseActions from "@/components/shared/ExerciseActions";
+import { notFound } from "next/navigation";
 
 interface IExerciseProps {
   params: Promise<{
@@ -26,9 +26,11 @@ const IdPage = async ({ params }: IExerciseProps) => {
 
   const gymData = await getData();
 
-  const exerciseData = gymData.find(
-    (data: IGymItem) => String(data.id) === id,
-  ) as IGymItem;
+  const exerciseData = gymData.find((data: IGymItem) => String(data.id) === id);
+
+if (!exerciseData) {
+  notFound();
+}
 
   return (
     <div>
