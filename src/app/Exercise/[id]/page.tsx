@@ -34,8 +34,8 @@ if (!exerciseData) {
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 container mx-auto max-w-7xl mt-10">
-        <figure className="relative w-full h-full min-h-[600px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 container mx-auto max-w-6xl sm:max-w-7xl mt-10 px-4">
+        <figure className="relative w-full h-full min-h-75 md:min-h-150">
           <Image
             src={exerciseData.image}
             alt={exerciseData.name}
@@ -114,8 +114,8 @@ if (!exerciseData) {
             </h2>
             <ol className="space-y-3">
               {exerciseData.instructions.map((instruction, index) => (
-                <li key={instruction} className="flex gap-3">
-                  <span className="flex items-center justify-center text-lg font-semibold">
+                <li key={instruction} className="flex items-start gap-3">
+                  <span className="flex items-center justify-center text-lg font-semibold shrink-0">
                     {index + 1}.
                   </span>
                   <span className="text-lg">{instruction}</span>

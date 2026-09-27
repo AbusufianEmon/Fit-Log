@@ -124,7 +124,7 @@ const TodayPlanPage = () => {
               Browse the library and add a lift to get today moving.
             </p>
             <Link href="/">
-              <button className="mt-6 bg-lime-400 text-black font-semibold px-6 py-3 rounded-full">
+              <button className="mt-6 bg-lime-400 text-black font-semibold px-6 py-3 rounded-full hover:cursor-pointer">
                 Go to workouts
               </button>
             </Link>

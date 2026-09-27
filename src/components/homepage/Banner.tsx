@@ -11,7 +11,7 @@ const Banner = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center mt-5 bg-base-100 rounded-2xl p-6 md:p-14 min-h-[280px] md:min-h-[380px] gap-8 container mx-auto max-w-7xl">
+    <div className="flex flex-col md:flex-row justify-between items-center mt-5 bg-base-100 rounded-2xl p-6 md:p-14 min-h-70 md:min-h-95 gap-8 container mx-auto max-w-7xl px-4">
       <div className="flex flex-col gap-3 text-center md:text-left">
         <h3 className="text-lime-400 text-sm font-semibold uppercase tracking-wide">
           Workout Library

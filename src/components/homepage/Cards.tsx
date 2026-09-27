@@ -18,7 +18,7 @@ const Cards = async () => {
   const gymData = await getData();
 
   return (
-    <div id="library" className="container mx-auto md:max-w-7xl mt-20">
+    <div id="library" className="container mx-auto md:max-w-7xl mt-20 px-4">
 
       <div>
         <h2 className="font-extrabold text-2xl sm:text-3xl md:text-4xl">THE LIBRARY</h2>
