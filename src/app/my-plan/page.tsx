@@ -3,13 +3,38 @@ import Link from "next/link";
 import { usePlan } from "@/context/PlanContext";
 import { useState } from "react";
 import PlanListItem from "@/components/shared/PlanListItem";
+import { toast } from "react-toastify";
 
 const TodayPlanPage = () => {
   const { planItems, savedItems, removeFromPlan, removeFromSaved, markAsDone } =
     usePlan();
   const [activeTab, setActiveTab] = useState<"plan" | "saved">("plan");
+  const [sortBy, setSortBy] = useState<"duration" | "calories" | "rating">(
+    "duration",
+  );
 
-  const activeList = activeTab === "plan" ? planItems : savedItems;
+  const rawList = activeTab === "plan" ? planItems : savedItems;
+
+  const activeList = [...rawList].sort((a, b) => {
+    if (sortBy === "duration") return a.duration - b.duration;
+    if (sortBy === "calories") return a.caloriesBurned - b.caloriesBurned;
+    return b.rating - a.rating; // rating: highest first
+  });
+
+  const handleRemove = (id: number) => {
+    if (activeTab === "plan") {
+      removeFromPlan(id);
+      toast.info("Removed from plan");
+    } else {
+      removeFromSaved(id);
+      toast.info("Removed from saved");
+    }
+  };
+
+  const handleMarkDone = (id: number) => {
+    markAsDone(id);
+    toast.success("Marked as done");
+  };
 
   const stats = [
     { label: "Exercises", value: activeList.length, highlight: true },
@@ -75,10 +100,16 @@ const TodayPlanPage = () => {
           <span className="text-sm text-gray-300 whitespace-nowrap">
             Sort By
           </span>
-          <select className="select select-bordered bg-base-100 rounded-full">
-            <option>Duration</option>
-            <option>Calories</option>
-            <option>Difficulty</option>
+          <select
+            value={sortBy}
+            onChange={(e) =>
+              setSortBy(e.target.value as "duration" | "calories" | "rating")
+            }
+            className="select select-bordered bg-base-100 rounded-full"
+          >
+            <option value="duration">Duration</option>
+            <option value="calories">Calories</option>
+            <option value="rating">Rating</option>
           </select>
         </div>
       </div>
@@ -105,10 +136,8 @@ const TodayPlanPage = () => {
                 key={item.id}
                 item={item}
                 showMarkDone={activeTab === "plan"}
-                onMarkDone={markAsDone}
-                onRemove={
-                  activeTab === "plan" ? removeFromPlan : removeFromSaved
-                }
+                onMarkDone={handleMarkDone}
+                onRemove={handleRemove}
               />
             ))}
           </div>
