@@ -3,8 +3,8 @@
 import React, {
   createContext,
   useContext,
-  useState,
-  useEffect,
+  useMemo,
+  useSyncExternalStore,
   ReactNode,
 } from "react";
 import { IGymItem } from "@/Types/GymTypes";
@@ -22,52 +22,102 @@ interface PlanContextType {
 const PlanContext = createContext<PlanContextType | undefined>(undefined);
 
 const PLAN_CAP = 5;
+const PLAN_KEY = "planItems";
+const SAVED_KEY = "savedItems";
+const EMPTY = "[]";
 
-const getStoredItems = (key: string): IGymItem[] => {
-  if (typeof window === "undefined") return [];
+// ---- localStorage store (read with useSyncExternalStore) ----
+
+const listeners = new Set<() => void>();
+
+const subscribe = (callback: () => void) => {
+  listeners.add(callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    listeners.delete(callback);
+    window.removeEventListener("storage", callback);
+  };
+};
+
+const emitChange = () => {
+  listeners.forEach((listener) => listener());
+};
+
+const readRaw = (key: string): string => {
   try {
-    const stored = localStorage.getItem(key);
-    return stored ? (JSON.parse(stored) as IGymItem[]) : [];
+    return localStorage.getItem(key) ?? EMPTY;
   } catch (error) {
     console.error(`Failed to load ${key}:`, error);
+    return EMPTY;
+  }
+};
+
+const parseItems = (raw: string): IGymItem[] => {
+  try {
+    return JSON.parse(raw) as IGymItem[];
+  } catch {
     return [];
   }
 };
 
+const writeItems = (key: string, items: IGymItem[]) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(items));
+  } catch (error) {
+    console.error(`Failed to save ${key}:`, error);
+  }
+  emitChange();
+};
+
+const getServerSnapshot = () => EMPTY;
+
+// ---- Provider ----
+
 export const PlanProvider = ({ children }: { children: ReactNode }) => {
-  const [planItems, setPlanItems] = useState<IGymItem[]>(() =>
-    getStoredItems("planItems"),
+  // The server and the first client render both use EMPTY, so they always match.
+  // After hydration, React switches to the real localStorage value.
+  const planRaw = useSyncExternalStore(
+    subscribe,
+    () => readRaw(PLAN_KEY),
+    getServerSnapshot,
   );
-  const [savedItems, setSavedItems] = useState<IGymItem[]>(() =>
-    getStoredItems("savedItems"),
+  const savedRaw = useSyncExternalStore(
+    subscribe,
+    () => readRaw(SAVED_KEY),
+    getServerSnapshot,
   );
 
-  useEffect(() => {
-    localStorage.setItem("planItems", JSON.stringify(planItems));
-  }, [planItems]);
-
-  useEffect(() => {
-    localStorage.setItem("savedItems", JSON.stringify(savedItems));
-  }, [savedItems]);
+  const planItems = useMemo(() => parseItems(planRaw), [planRaw]);
+  const savedItems = useMemo(() => parseItems(savedRaw), [savedRaw]);
 
   const addToPlan = (item: IGymItem) => {
-    if (planItems.length >= PLAN_CAP) return false;
-    if (planItems.some((p) => p.id === item.id)) return false;
-    setPlanItems((prev) => [...prev, item]);
+    const current = parseItems(readRaw(PLAN_KEY));
+    if (current.length >= PLAN_CAP) return false;
+    if (current.some((p) => p.id === item.id)) return false;
+    writeItems(PLAN_KEY, [...current, item]);
     return true;
   };
 
   const addToSaved = (item: IGymItem) => {
-    if (savedItems.some((s) => s.id === item.id)) return;
-    setSavedItems((prev) => [...prev, item]);
+    const current = parseItems(readRaw(SAVED_KEY));
+    if (current.some((s) => s.id === item.id)) return;
+    writeItems(SAVED_KEY, [...current, item]);
   };
 
   const removeFromPlan = (id: number) => {
-    setPlanItems((prev) => prev.filter((item) => item.id !== id));
+    const current = parseItems(readRaw(PLAN_KEY));
+    writeItems(
+      PLAN_KEY,
+      current.filter((item) => item.id !== id),
+    );
   };
 
   const removeFromSaved = (id: number) => {
-    setSavedItems((prev) => prev.filter((item) => item.id !== id));
+    const current = parseItems(readRaw(SAVED_KEY));
+    writeItems(
+      SAVED_KEY,
+      current.filter((item) => item.id !== id),
+    );
   };
 
   const markAsDone = (id: number) => {

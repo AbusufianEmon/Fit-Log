@@ -87,7 +87,7 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
-        <div className="navbar-end gap-3">
+        <div className="navbar-end gap-1.5 sm:gap-3">
           <Link
             href={"/my-plan"}
             className="flex items-center px-2 py-1 rounded-2xl gap-2 hover:cursor-pointer hover:bg-base-100"
